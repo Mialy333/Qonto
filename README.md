@@ -4,28 +4,28 @@ Overview
 
 This project implements a simple ledger system to manage internal and external financial transactions. It includes functionalities to retrieve account balances, transfer funds, and reverse transactions.
 
-Features
+Features: 
 
-Retrieve account balance.
+- Retrieve account balance.
 
-Transfer funds between internal accounts.
+- Transfer funds between internal accounts.
 
-Transfer funds to or from external accounts.
+- Transfer funds to or from external accounts.
 
-Reverse a previous transaction.
+- Reverse a previous transaction.
 
-Maintain a transaction history.
+- Maintain a transaction history.
 
 Installation & Setup
 
 Clone the repository:
 
-git clone https://github.com/Mialy333/Qonto.git
+- git clone https://github.com/Mialy333/Qonto.git
 cd Qonto
 
-Install dependencies (if any):
+- Install dependencies (if any):
 
-npm install # Only if there are dependencies
+- npm install # Only if there are dependencies
 
 Usage
 
