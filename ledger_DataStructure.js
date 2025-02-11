@@ -1,49 +1,34 @@
-// Data
+// Ledger
 const ledger = {
   accounts: {
-    IBAN1: 6000, // Current balance
-    IBAN2: 7000,
+    IBAN1: 5000,
+    IBAN2: 5000,
   },
-  transactions: [], // Transactions
+  transactions: [],
 };
 
-// Function GetBalance
+// Function getBalance
 function getBalance(iban) {
   if (ledger.accounts.hasOwnProperty(iban)) {
-    // If the account exists
-    return ledger.accounts[iban]; // Current Balance is ...
+    return ledger.accounts[iban];
   } else {
-    throw new Error("Compte non trouvé : " + iban); // error
+    throw new Error("Account not found : " + iban);
   }
-}
-
-// Tests
-try {
-  console.log(getBalance("IBAN1"));
-} catch (error) {
-  console.error(error.message);
 }
 
 // Function moveFundsInternal
 function moveFundsInternal(emitterIban, receiverIban, amount) {
-  // Check that both of the account are existing
   if (!ledger.accounts.hasOwnProperty(emitterIban)) {
     throw new Error("Compte émetteur non trouvé : " + emitterIban);
   }
   if (!ledger.accounts.hasOwnProperty(receiverIban)) {
-    throw new Error("Compte receveur non trouvé : " + receiverIban);
+    throw new Error("Receiver account not found : " + receiverIban);
   }
-
-  // Check that the emitter has enought amount
   if (ledger.accounts[emitterIban] < amount) {
-    throw new Error("Fonds insuffisants pour le compte : " + emitterIban);
+    throw new Error("Insufficient funds in the account : " + emitterIban);
   }
-
-  // Current balance updating
   ledger.accounts[emitterIban] -= amount;
   ledger.accounts[receiverIban] += amount;
-
-  // Transaction storage
   const transaction = {
     id: ledger.transactions.length + 1,
     emitterIban: emitterIban,
@@ -52,37 +37,93 @@ function moveFundsInternal(emitterIban, receiverIban, amount) {
     date: new Date().toISOString(),
   };
   ledger.transactions.push(transaction);
-
   console.log(
-    `Transaction réussie : ${amount} transférés de ${emitterIban} à ${receiverIban}`
+    `TRANSACTION SUCCESSFUL : ${amount} transferred to ${emitterIban} to ${receiverIban}`
+  );
+}
+
+// Function moveFunds
+function moveFunds(emitterIban, receiverIban, amount) {
+  const isEmitterInternal = ledger.accounts.hasOwnProperty(emitterIban);
+  const isReceiverInternal = ledger.accounts.hasOwnProperty(receiverIban);
+  if (isEmitterInternal && isReceiverInternal) {
+    throw new Error(
+      "Both of the accounts are internal. Please use moveFundsInternal."
+    );
+  }
+  if (!isEmitterInternal && !isReceiverInternal) {
+    throw new Error("Neither account is internal.");
+  }
+  if (isEmitterInternal) {
+    if (ledger.accounts[emitterIban] < amount) {
+      throw new Error("Insufficient funds in the account : " + emitterIban);
+    }
+    ledger.accounts[emitterIban] -= amount;
+  }
+  if (isReceiverInternal) {
+    ledger.accounts[receiverIban] += amount;
+  }
+  const transaction = {
+    id: ledger.transactions.length + 1,
+    emitterIban: emitterIban,
+    receiverIban: receiverIban,
+    amount: amount,
+    date: new Date().toISOString(),
+  };
+  ledger.transactions.push(transaction);
+  console.log(
+    `TRANSACTION SUCCESSFUL: ${amount} transferred to ${emitterIban} to ${receiverIban}`
+  );
+}
+
+// Function reverseTransaction
+function reverseTransaction(transactionId) {
+  const transaction = ledger.transactions.find((t) => t.id === transactionId);
+  if (!transaction) {
+    throw new Error("Transaction not found : " + transactionId);
+  }
+  if (!ledger.accounts.hasOwnProperty(transaction.emitterIban)) {
+    throw new Error("Emitter account not found : " + transaction.emitterIban);
+  }
+  if (!ledger.accounts.hasOwnProperty(transaction.receiverIban)) {
+    throw new Error("Receiver account not found : " + transaction.receiverIban);
+  }
+  ledger.accounts[transaction.emitterIban] += transaction.amount;
+  ledger.accounts[transaction.receiverIban] -= transaction.amount;
+  const reversalTransaction = {
+    id: ledger.transactions.length + 1,
+    emitterIban: transaction.receiverIban,
+    receiverIban: transaction.emitterIban,
+    amount: transaction.amount,
+    date: new Date().toISOString(),
+    reversedTransactionId: transactionId,
+  };
+  ledger.transactions.push(reversalTransaction);
+  console.log(
+    `TRANSACTION CANCELLED : ${transaction.amount} returned to ${transaction.receiverIban} to ${transaction.emitterIban}`
   );
 }
 
 // Tests
 try {
-  console.log("Solde initial IBAN1 :", getBalance("IBAN1"));
-  console.log("Solde initial IBAN2 :", getBalance("IBAN2"));
+  console.log("Initial balance IBAN1 :", getBalance("IBAN1"));
+  console.log("Initial balance IBAN2 :", getBalance("IBAN2"));
 
-  moveFundsInternal("IBAN1", "IBAN2", 1000); // Transfert
+  moveFundsInternal("IBAN1", "IBAN2", 200);
+  console.log("Current balance IBAN1 :", getBalance("IBAN1"));
+  console.log("Current balance IBAN2 :", getBalance("IBAN2"));
 
-  console.log("Nouveau solde IBAN1 :", getBalance("IBAN1"));
-  console.log("Nouveau solde IBAN2 :", getBalance("IBAN2"));
+  moveFunds("IBAN1", "IBAN_EXTERNE", 100);
+  console.log("Current balance IBAN1 :", getBalance("IBAN1"));
 
-  console.log("Historique des transactions :", ledger.transactions);
+  moveFunds("IBAN_EXTERNE", "IBAN2", 50);
+  console.log("Current balance IBAN2 :", getBalance("IBAN2"));
+
+  reverseTransaction(1);
+  console.log("Current balance IBAN1 :", getBalance("IBAN1"));
+  console.log("Current balance IBAN2 :", getBalance("IBAN2"));
+
+  console.log("transaction storage :", ledger.transactions);
 } catch (error) {
   console.error(error.message);
 }
-
-function moveFunds(emitterIban, receiverIban, amount) {
-  // Implémentation ici
-}
-
-function reverseTransaction(transactionId) {
-  // Implémentation ici
-}
-
-// Tests
-console.log(getBalance("IBAN1"));
-moveFundsInternal("IBAN1", "IBAN2", 1000);
-console.log(getBalance("IBAN1"));
-console.log(getBalance("IBAN2"));
