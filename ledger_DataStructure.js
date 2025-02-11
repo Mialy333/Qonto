@@ -19,7 +19,7 @@ function getBalance(iban) {
 // Function moveFundsInternal
 function moveFundsInternal(emitterIban, receiverIban, amount) {
   if (!ledger.accounts.hasOwnProperty(emitterIban)) {
-    throw new Error("Compte émetteur non trouvé : " + emitterIban);
+    throw new Error("Emitter account not found : " + emitterIban);
   }
   if (!ledger.accounts.hasOwnProperty(receiverIban)) {
     throw new Error("Receiver account not found : " + receiverIban);
@@ -113,10 +113,10 @@ try {
   console.log("Current balance IBAN1 :", getBalance("IBAN1"));
   console.log("Current balance IBAN2 :", getBalance("IBAN2"));
 
-  moveFunds("IBAN1", "IBAN_EXTERNE", 100);
+  moveFunds("IBAN1", "EXTERNAL_IBAN", 100);
   console.log("Current balance IBAN1 :", getBalance("IBAN1"));
 
-  moveFunds("IBAN_EXTERNE", "IBAN2", 50);
+  moveFunds("EXTERNAL_IBAN", "IBAN2", 50);
   console.log("Current balance IBAN2 :", getBalance("IBAN2"));
 
   reverseTransaction(1);
